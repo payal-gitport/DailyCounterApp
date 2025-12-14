@@ -1,50 +1,106 @@
-# Welcome to your Expo app 👋
+# DailyCounterApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A simple and intuitive React Native mobile application for tracking daily counts and activities, built with Expo.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 📊 **Dashboard**: Track and visualize your daily counts
+- 🔍 **Explore**: Browse through your tracking history
+- 📈 **Summary**: View analytics and statistics with charts
+- ⚙️ **Settings**: Customize your app preferences
+- 👤 **Profile**: Manage your personal information
+- 💬 **Feedback**: Share your thoughts and suggestions
+- ❓ **Help**: Access support and documentation
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **Framework**: React Native with Expo
+- **Language**: TypeScript
+- **Navigation**: React Navigation
+- **Charts**: React Native Chart Kit
+- **State Management**: React Context API
+- **UI**: Custom themed components with dark mode support
 
-   ```bash
-   npx expo start
-   ```
+## Prerequisites
 
-In the output, you'll find options to open the app in a
+- Node.js (v16 or higher)
+- npm or yarn
+- Expo CLI
+- iOS Simulator (for iOS development) or Android Studio (for Android development)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Installation
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. Clone the repository:
 
 ```bash
-npm run reset-project
+git clone https://github.com/payal-gitport/DailyCounterApp.git
+cd DailyCounterApp
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Install dependencies:
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Start the development server:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm start
+```
 
-## Join the community
+## Available Scripts
 
-Join our community of developers creating universal apps.
+- `npm start` - Start the Expo development server
+- `npm run android` - Run on Android device/emulator
+- `npm run ios` - Run on iOS device/simulator
+- `npm run web` - Run in web browser
+- `npm run lint` - Run ESLint for code quality checks
+- `npm run reset-project` - Reset the project to initial state
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Project Structure
+
+```
+DailyCounterApp/
+├── app/                    # App screens using Expo Router
+├── src/
+│   ├── navigation/        # Navigation configuration
+│   └── screens/           # Screen components
+├── components/            # Reusable UI components
+├── contexts/              # React Context providers
+├── constants/             # App constants and theme
+├── hooks/                 # Custom React hooks
+├── assets/                # Images and static files
+├── android/               # Android native code
+└── ios/                   # iOS native code
+```
+
+## Building for Production
+
+### Android
+
+```bash
+npm run android -- --variant release
+```
+
+### iOS
+
+```bash
+npm run ios -- --configuration Release
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is private and proprietary.
+
+## Contact
+
+For questions or support, please open an issue in the repository.
+
+---
+
+Built with ❤️ using React Native and Expo
