@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Svg, { Circle, G } from "react-native-svg";
 
 const getTodayKey = () => new Date().toISOString().split("T")[0];
 
@@ -335,7 +336,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <Modal
+    <Modal
         visible={sessionActive}
         animationType="slide"
         transparent={true}
@@ -351,7 +352,6 @@ export default function HomeScreen() {
                 {formatTime(elapsedTime)}
               </Text>
             </View>
-
             <View style={styles.sessionCountContainer}>
               <Text
                 style={[
@@ -361,13 +361,73 @@ export default function HomeScreen() {
               >
                 Session Count
               </Text>
-              <Text
-                style={[styles.sessionCountValue, { color: colors.primary }]}
-              >
-                {sessionCount}
-              </Text>
+              {/* Circular Progress with 10 segments */}
+              <View style={styles.circularProgressContainer}>
+                <Svg width="200" height="200" viewBox="0 0 200 200">
+                  <G rotation="-90" origin="100, 100">
+                    {/* Single circle boundary */}
+                    <Circle
+                      cx="100"
+                      cy="100"
+                      r="80"
+                      stroke={colors.border}
+                      strokeWidth="16"
+                      fill="none"
+                    />
+                    {/* 10 equal segments that fill on each count */}
+                    {[...Array(10)].map((_, index) => {
+                      const segmentAngle = 36; // 360/10 = 36 degrees per segment
+                      const gapAngle = 3; // Gap between segments (in degrees)
+                      const arcLength = segmentAngle - gapAngle;
+                      const circumference = 2 * Math.PI * 80; // 2πr where r=80
+                      const segmentLength = (arcLength / 360) * circumference;
+                      const gapLength = (gapAngle / 360) * circumference;
+                      const restLength = circumference - segmentLength;
+                      const strokeDasharray = `${segmentLength} ${restLength}`;
+                      const rotation = index * segmentAngle;
+                      const currentSegment = sessionCount % 10;
+                      // Determine if this segment should be filled
+                      const isFilled = currentSegment > index;
+                      return isFilled ? (
+                        <G key={index} rotation={rotation} origin="100, 100">
+                          <Circle
+                            cx="100"
+                            cy="100"
+                            r="80"
+                            stroke={colors.primary}
+                            strokeWidth="16"
+                            fill="none"
+                            strokeDasharray={strokeDasharray}
+                            strokeLinecap="round"
+                          />
+                        </G>
+                      ) : null;
+                    })}
+                  </G>
+                </Svg>
+                {/* Count in the center */}
+                <View style={styles.circularProgressCenter}>
+                  <Text
+                    style={[
+                      styles.sessionCountValue,
+                      { color: colors.primary },
+                    ]}
+                  >
+                    {sessionCount}
+                  </Text>
+                  {sessionCount >= 10 && (
+                    <Text
+                      style={[
+                        styles.cycleIndicator,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      Cycle {Math.floor(sessionCount / 10) + 1}
+                    </Text>
+                  )}
+                </View>
+              </View>
             </View>
-
             <TouchableOpacity
               onPress={incrementSession}
               style={[
@@ -379,10 +439,15 @@ export default function HomeScreen() {
               <Text style={styles.sessionAddButtonText}>+</Text>
               <Text style={styles.sessionAddButtonLabel}>Add Count</Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               onPress={openTypeModal}
-              style={[styles.endSessionButton, { borderColor: colors.border }]}
+              style={[
+                styles.endSessionButton,
+                {
+                  backgroundColor: colors.secondary,
+                  borderColor: colors.border,
+                },
+              ]}
               activeOpacity={0.8}
             >
               <Text
@@ -923,19 +988,36 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     marginBottom: 24,
-  },
-  sessionCountLabel: {
+  },sessionCountLabel: {
     fontSize: 12,
-    color: "#64748b",
+    color: "#64748B",
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 1,
-    marginBottom: 8,
+    marginBottom: 16,
+  },
+  circularProgressContainer: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  circularProgressCenter: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
   },
   sessionCountValue: {
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: "700",
-    color: "#1e293b",
+    color: "#1E293B",
+  },
+  cycleIndicator: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#64748B",
+    marginTop: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   sessionAddButton: {
     backgroundColor: "#6366f1",
@@ -969,14 +1051,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   endSessionButton: {
-    backgroundColor: "#ef4444",
+
     borderRadius: 16,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
     ...Platform.select({
       ios: {
-        shadowColor: "#ef4444",
+
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

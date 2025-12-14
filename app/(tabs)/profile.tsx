@@ -34,11 +34,24 @@ export default function ProfileScreen() {
   const [editStartDate, setEditStartDate] = useState("");
   const [editDob, setEditDob] = useState("");
 
+  const [logs, setLogs] = useState<Record<string, string[]>>({});
+
   // Date picker states
-  const [showStartDatePicker, setShowStartDatePicker] = useState(true);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showDobPicker, setShowDobPicker] = useState(false);
   const [tempStartDate, setTempStartDate] = useState(new Date());
   const [tempDob, setTempDob] = useState(new Date());
+
+  const loadLogs = useCallback(async () => {
+    try {
+      const data = await AsyncStorage.getItem("COUNTER_LOGS");
+      if (data) {
+        setLogs(JSON.parse(data));
+      }
+    } catch (error) {
+      console.error("Failed to load logs:", error);
+    }
+  }, []);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -131,10 +144,11 @@ export default function ProfileScreen() {
     }
   };
 
-  useFocusEffect(
+ useFocusEffect(
     useCallback(() => {
       loadProfile();
-    }, [loadProfile])
+      loadLogs();
+    }, [loadProfile, loadLogs])
   );
 
   const changeTheme = async (theme: Theme) => {
@@ -272,7 +286,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Stats Section */}
+       {/* Stats Section */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Quick Stats
@@ -286,7 +300,27 @@ export default function ProfileScreen() {
                 Current Streak
               </Text>
               <Text style={[styles.statValue, { color: colors.primary }]}>
-                0 days
+                {(() => {
+                  const dates = Object.keys(logs).sort((a, b) =>
+                    a < b ? 1 : -1
+                  );
+                  if (dates.length === 0) return "0 days";
+                  let streak = 0;
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  for (let i = 0; i < dates.length; i++) {
+                    const checkDate = new Date(dates[i]);
+                    const expectedDate = new Date(today);
+                    expectedDate.setDate(today.getDate() - i);
+                    expectedDate.setHours(0, 0, 0, 0);
+                    if (checkDate.getTime() === expectedDate.getTime()) {
+                      streak++;
+                    } else {
+                      break;
+                    }
+                  }
+                  return `${streak} day${streak !== 1 ? "s" : ""}`;
+                })()}
               </Text>
             </View>
             <View
@@ -300,7 +334,10 @@ export default function ProfileScreen() {
                 Total Sessions
               </Text>
               <Text style={[styles.statValue, { color: colors.primary }]}>
-                0
+                {Object.values(logs).reduce(
+                  (sum, dayLogs) => sum + dayLogs.length,
+                  0
+                )}
               </Text>
             </View>
             <View
@@ -314,7 +351,7 @@ export default function ProfileScreen() {
                 Active Days
               </Text>
               <Text style={[styles.statValue, { color: colors.primary }]}>
-                0
+                {Object.keys(logs).length}
               </Text>
             </View>
           </View>
