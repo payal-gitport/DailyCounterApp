@@ -18,29 +18,29 @@ import {
 
 interface UserProfile {
   name: string;
-  startDate: string;
-  dob: string;
+  lmpDate: string;
+  dueDate: string;
 }
 
 export default function ProfileScreen() {
   const { theme: selectedTheme, setTheme, colors } = useTheme();
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
-    startDate: "",
-    dob: "",
+    lmpDate: "",
+    dueDate: "",
   });
   const [showEditModal, setShowEditModal] = useState(false);
   const [editName, setEditName] = useState("");
-  const [editStartDate, setEditStartDate] = useState("");
-  const [editDob, setEditDob] = useState("");
+  const [editLmpDate, setEditLmpDate] = useState("");
+  const [editDueDate, setEditDueDate] = useState("");
 
   const [logs, setLogs] = useState<Record<string, string[]>>({});
 
   // Date picker states
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showDobPicker, setShowDobPicker] = useState(false);
-  const [tempStartDate, setTempStartDate] = useState(new Date());
-  const [tempDob, setTempDob] = useState(new Date());
+  const [showLMPDatePicker, setShowLMPDatePicker] = useState(false);
+  const [showDueDatePicker, setShowDueDatePicker] = useState(false);
+  const [tempLMPDate, setTempLMPDate] = useState(new Date());
+  const [tempDueDate, setTempDueDate] = useState(new Date());
 
   const loadLogs = useCallback(async () => {
     try {
@@ -68,14 +68,14 @@ export default function ProfileScreen() {
     try {
       const newProfile = {
         name: editName.trim(),
-        startDate: editStartDate.trim(),
-        dob: editDob.trim(),
+        lmpDate: editLmpDate.trim(),
+        dueDate: editDueDate.trim(),
       };
       await AsyncStorage.setItem("USER_PROFILE", JSON.stringify(newProfile));
       setProfile(newProfile);
       setShowEditModal(false);
-      setShowStartDatePicker(false);
-      setShowDobPicker(false);
+      setShowLMPDatePicker(false);
+      setShowDueDatePicker(false);
       Alert.alert("Success", "Profile updated successfully!");
     } catch {
       Alert.alert("Error", "Failed to save profile.");
@@ -84,24 +84,24 @@ export default function ProfileScreen() {
 
   const openEditModal = () => {
     setEditName(profile.name);
-    setEditStartDate(profile.startDate);
-    setEditDob(profile.dob);
+    setEditLmpDate(profile.lmpDate);
+    setEditDueDate(profile.dueDate);
 
     // Initialize date pickers with existing dates or current date
-    if (profile.startDate) {
-      const [month, day, year] = profile.startDate.split("/");
-      setTempStartDate(
+    if (profile.lmpDate) {
+      const [ day,month, year] = profile.lmpDate.split("/");
+      setTempLMPDate(
         new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
       );
     } else {
-      setTempStartDate(new Date());
+      setTempLMPDate(new Date());
     }
 
-    if (profile.dob) {
-      const [month, day, year] = profile.dob.split("/");
-      setTempDob(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
+    if (profile.dueDate) {
+      const [ day, month,year] = profile.dueDate.split("/");
+      setTempDueDate(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
     } else {
-      setTempDob(new Date());
+      setTempDueDate(new Date());
     }
 
     setShowEditModal(true);
@@ -111,38 +111,52 @@ export default function ProfileScreen() {
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const day = date.getDate().toString().padStart(2, "0");
     const year = date.getFullYear();
-    return `${month}/${day}/${year}`;
+    return `${day}/${month}/${year}`;
   };
 
-  const handleStartDateChange = (event: any, selectedDate?: Date) => {
+  const handleLMPDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === "android") {
-      setShowStartDatePicker(false);
+      setShowLMPDatePicker(false);
     }
     if (event.type === "set" && selectedDate) {
-      setTempStartDate(selectedDate);
-      setEditStartDate(formatDate(selectedDate));
+      setTempLMPDate(selectedDate);
+      setEditLmpDate(formatDate(selectedDate));
       if (Platform.OS === "ios") {
         // iOS will handle this with Done button
       }
     } else if (event.type === "dismissed") {
-      setShowStartDatePicker(false);
+      setShowLMPDatePicker(false);
     }
   };
 
-  const handleDobChange = (event: any, selectedDate?: Date) => {
+  const handleDueDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === "android") {
-      setShowDobPicker(false);
+      setShowDueDatePicker(false);
     }
     if (event.type === "set" && selectedDate) {
-      setTempDob(selectedDate);
-      setEditDob(formatDate(selectedDate));
+      setTempDueDate(selectedDate);
+      setEditDueDate(formatDate(selectedDate));
       if (Platform.OS === "ios") {
         // iOS will handle this with Done button
       }
     } else if (event.type === "dismissed") {
-      setShowDobPicker(false);
+      setShowDueDatePicker(false);
     }
   };
+
+const getPregnancyWeek = (lmpDate: string) => {
+  if (!lmpDate) return null;
+
+  const [day, month, year] = lmpDate.split('/').map(Number);
+  const start = new Date(year, month - 1, day); // month is 0-based
+  const now = new Date();
+
+  const diffDays = Math.floor(
+    (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return Math.floor(diffDays / 7);
+};
 
  useFocusEffect(
     useCallback(() => {
@@ -209,17 +223,22 @@ export default function ProfileScreen() {
             {profile.name || "Tap to add your name"}
           </Text>
 
-          {profile.startDate && (
+          {/* {profile.lmpDate && (
             <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
-                Started: {profile.startDate}
+                Started: {profile.lmpDate}
               </Text>
             </View>
-          )}
-          {profile.dob && (
+          )} */}
+          {profile.lmpDate && (
+  <Text style={styles.infoLabel}>
+    🤰 Week {getPregnancyWeek(profile.lmpDate)}
+  </Text>
+)}
+          {profile.dueDate && (
             <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
-                Birthday: {profile.dob}
+                Birthday: {profile.dueDate}
               </Text>
             </View>
           )}
@@ -380,13 +399,13 @@ export default function ProfileScreen() {
         transparent={true}
         onRequestClose={() => {
           setShowEditModal(false);
-          setShowStartDatePicker(false);
-          setShowDobPicker(false);
+          setShowLMPDatePicker(false);
+          setShowDueDatePicker(false);
         }}
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-            {!showStartDatePicker && !showDobPicker ? (
+            {!showLMPDatePicker && !showDueDatePicker ? (
               <>
                 <Text style={[styles.modalTitle, { color: colors.text }]}>
                   Edit Profile
@@ -422,7 +441,7 @@ export default function ProfileScreen() {
 
                 <View style={styles.inputContainer}>
                   <Text style={[styles.inputLabel, { color: colors.text }]}>
-                    Start Date
+                    LMP Date
                   </Text>
                   <TouchableOpacity
                     style={[
@@ -433,32 +452,32 @@ export default function ProfileScreen() {
                       },
                     ]}
                     activeOpacity={0.7}
-                    onPress={() => setShowStartDatePicker(true)}
+                    onPress={() => setShowLMPDatePicker(true)}
                   >
                     <Text
                       style={[
                         styles.dateInputText,
                         {
-                          color: editStartDate
+                          color: editLmpDate
                             ? colors.text
                             : colors.textSecondary,
                         },
                       ]}
                     >
-                      {editStartDate || "MM/DD/YYYY"}
+                      {editLmpDate || "MM/DD/YYYY"}
                     </Text>
                     <Text style={styles.calendarIcon}>📅</Text>
                   </TouchableOpacity>
                   <Text
                     style={[styles.inputHint, { color: colors.textSecondary }]}
                   >
-                    When did you start training?
+First day of last period (LMP)
                   </Text>
                 </View>
 
                 <View style={styles.inputContainer}>
                   <Text style={[styles.inputLabel, { color: colors.text }]}>
-                    Date of Birth
+Expected Due Date
                   </Text>
                   <TouchableOpacity
                     style={[
@@ -469,24 +488,24 @@ export default function ProfileScreen() {
                       },
                     ]}
                     activeOpacity={0.7}
-                    onPress={() => setShowDobPicker(true)}
+                    onPress={() => setShowDueDatePicker(true)}
                   >
                     <Text
                       style={[
                         styles.dateInputText,
-                        { color: editDob ? colors.text : colors.textSecondary },
+                        { color: editDueDate ? colors.text : colors.textSecondary },
                       ]}
                     >
-                      {editDob || "MM/DD/YYYY"}
+                      {editDueDate || "MM/DD/YYYY"}
                     </Text>
                     <Text style={styles.calendarIcon}>📅</Text>
                   </TouchableOpacity>
                 </View>
               </>
-            ) : showStartDatePicker ? (
+            ) : showLMPDatePicker ? (
               <>
                 <Text style={[styles.modalTitle, { color: colors.text }]}>
-                  Select Start Date
+                  Select LMP Date
                 </Text>
                 <Text
                   style={[
@@ -494,14 +513,14 @@ export default function ProfileScreen() {
                     { color: colors.textSecondary },
                   ]}
                 >
-                  When did you start training?
+First day of last period (LMP)
                 </Text>
                 <View style={styles.datePickerWrapper}>
                   <DateTimePicker
-                    value={tempStartDate}
+                    value={tempLMPDate}
                     mode="date"
                     display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={handleStartDateChange}
+                    onChange={handleLMPDateChange}
                     minimumDate={new Date(new Date().getFullYear() - 30, 0, 1)}
                     maximumDate={new Date()}
                   />
@@ -511,7 +530,7 @@ export default function ProfileScreen() {
                     styles.modalButton,
                     { backgroundColor: colors.primary, marginTop: 16 },
                   ]}
-                  onPress={() => setShowStartDatePicker(false)}
+                  onPress={() => setShowLMPDatePicker(false)}
                 >
                   <Text style={styles.saveButtonText}>Done</Text>
                 </TouchableOpacity>
@@ -519,7 +538,7 @@ export default function ProfileScreen() {
             ) : (
               <>
                 <Text style={[styles.modalTitle, { color: colors.text }]}>
-                  Select Date of Birth
+                  Select Expected Due Date
                 </Text>
                 <Text
                   style={[
@@ -531,10 +550,10 @@ export default function ProfileScreen() {
                 </Text>
                 <View style={styles.datePickerWrapper}>
                   <DateTimePicker
-                    value={tempDob}
+                    value={tempDueDate}
                     mode="date"
                     display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={handleDobChange}
+                    onChange={handleDueDateChange}
                     minimumDate={new Date(new Date().getFullYear() - 100, 0, 1)}
                     maximumDate={new Date()}
                   />
@@ -544,14 +563,14 @@ export default function ProfileScreen() {
                     styles.modalButton,
                     { backgroundColor: colors.primary, marginTop: 16 },
                   ]}
-                  onPress={() => setShowDobPicker(false)}
+                  onPress={() => setShowDueDatePicker(false)}
                 >
                   <Text style={styles.saveButtonText}>Done</Text>
                 </TouchableOpacity>
               </>
             )}
 
-            {!showStartDatePicker && !showDobPicker && (
+            {!showLMPDatePicker && !showDueDatePicker && (
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[
@@ -574,8 +593,8 @@ export default function ProfileScreen() {
                   activeOpacity={0.8}
                   onPress={() => {
                     setShowEditModal(false);
-                    setShowStartDatePicker(false);
-                    setShowDobPicker(false);
+                    setShowLMPDatePicker(false);
+                    setShowDueDatePicker(false);
                   }}
                 >
                   <Text
@@ -591,23 +610,23 @@ export default function ProfileScreen() {
       </Modal>
 
       {/* Android Date Pickers (native dialogs) */}
-      {showStartDatePicker && Platform.OS === "android" && (
+      {showLMPDatePicker && Platform.OS === "android" && (
         <DateTimePicker
-          value={tempStartDate}
+          value={tempLMPDate}
           mode="date"
           display="default"
-          onChange={handleStartDateChange}
+          onChange={handleLMPDateChange}
           minimumDate={new Date(new Date().getFullYear() - 30, 0, 1)}
           maximumDate={new Date()}
         />
       )}
 
-      {showDobPicker && Platform.OS === "android" && (
+      {showDueDatePicker && Platform.OS === "android" && (
         <DateTimePicker
-          value={tempDob}
+          value={tempDueDate}
           mode="date"
           display="default"
-          onChange={handleDobChange}
+          onChange={handleDueDateChange}
           minimumDate={new Date(new Date().getFullYear() - 100, 0, 1)}
           maximumDate={new Date()}
         />

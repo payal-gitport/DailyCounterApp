@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "DailyCounterApp",
-    "slug": "DailyCounterApp",
+    "slug": "countthekick",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.payal032.countthekick"
     },
     "android": {
       "adaptiveIcon": {
@@ -43,6 +44,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "dab013d8-b9e0-4af0-a9a6-c3ee485eb259"
+      }
+    },
+    "owner": "payal032"
   }
 }
